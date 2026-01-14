@@ -1,0 +1,38 @@
+services:
+
+  redis:
+    image: redis:7-alpine
+    container_name: www-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - www-network
+    command: redis-server --appendonly yes
+
+  # Redis Commander - Web UI for Redis
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: www-redis-commander
+    restart: unless-stopped
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+      - HTTP_USER=${REDIS_COMMANDER_USER:-admin}
+      - HTTP_PASSWORD=${REDIS_COMMANDER_PASSWORD:-admin}
+    networks:
+      - www-network
+    depends_on:
+      - redis
+
+# Networks
+networks:
+  www-network:
+    driver: bridge
+volumes:
+  redis_data:
+    driver: local
+# You can run mongodb with the following service if needed
