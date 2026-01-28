@@ -1,0 +1,17 @@
+{
+  "name": "redis-usecase-demo",
+  "version": "1.0.0",
+  "description": "Demo Redis use cases in real application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "demo": "node demo-client.js"
+  },
+  "keywords": ["redis", "cache", "session"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "redis": "^4.6.13",
+    "express": "^4.18.2"
+  }
+}
