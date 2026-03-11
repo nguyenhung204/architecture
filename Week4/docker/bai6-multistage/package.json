@@ -1,0 +1,10 @@
+{
+  "name": "multistage-nodejs",
+  "version": "1.0.0",
+  "description": "Multi-stage build demo",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "build": "echo 'Build step completed'"
+  }
+}
