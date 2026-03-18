@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bai11-postgres
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+
+  adminer:
+    image: adminer:latest
+    container_name: bai11-adminer
+    depends_on:
+      - postgres
+    ports:
+      - "8083:8080"

@@ -1,0 +1,25 @@
+services:
+  be:
+    container_name: be
+    build:
+      context: ./be
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
+  fe:
+    container_name: fe
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3000
+    depends_on:
+      - be
+    ports:
+      - "8080:80"
+    restart: unless-stopped
