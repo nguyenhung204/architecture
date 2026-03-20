@@ -1,0 +1,20 @@
+# Production mode: app built into image, served via Nginx
+services:
+  app:
+    build: ./app
+    container_name: p3-bai6-app-prod
+    networks:
+      - prod-net
+
+  nginx:
+    build: ./nginx
+    container_name: p3-bai6-nginx-prod
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+    networks:
+      - prod-net
+
+networks:
+  prod-net:

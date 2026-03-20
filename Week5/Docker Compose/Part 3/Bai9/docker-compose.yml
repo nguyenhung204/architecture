@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mariadb:11
+    container_name: p3-bai9-mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: nextcloud
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - nextcloud-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: p3-bai9-redis
+    restart: always
+    networks:
+      - nextcloud-net
+
+  nextcloud:
+    image: nextcloud:latest
+    container_name: p3-bai9-nextcloud
+    restart: always
+    ports:
+      - "80:80"
+    environment:
+      MYSQL_HOST: db
+      MYSQL_DATABASE: nextcloud
+      MYSQL_USER: nextcloud
+      MYSQL_PASSWORD: nextcloud
+      REDIS_HOST: redis
+      NEXTCLOUD_ADMIN_USER: admin
+      NEXTCLOUD_ADMIN_PASSWORD: adminpassword
+    volumes:
+      - nextcloud_data:/var/www/html
+    depends_on:
+      - db
+      - redis
+    networks:
+      - nextcloud-net
+
+volumes:
+  db_data:
+  nextcloud_data:
+
+networks:
+  nextcloud-net:

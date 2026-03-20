@@ -1,0 +1,22 @@
+# Development mode: code mounted from host, auto-reload enabled
+services:
+  app:
+    build: ./app
+    container_name: p3-bai6-app-dev
+    volumes:
+      - ./app:/app
+    environment:
+      FLASK_ENV: development
+      FLASK_DEBUG: "1"
+    ports:
+      - "5000:5000"
+    command: flask run --host=0.0.0.0 --reload
+
+  tests:
+    build: ./app
+    container_name: p3-bai6-tests
+    volumes:
+      - ./app:/app
+    command: pytest test_app.py -v
+    depends_on:
+      - app
