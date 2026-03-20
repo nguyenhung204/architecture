@@ -1,0 +1,84 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - '5672:5672'
+      - '15672:15672'  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mongodb-register:
+    image: mongo:7.0
+    container_name: mongodb-register
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: register_db
+    volumes:
+      - mongo_register_data:/data/db
+
+  mongodb-login:
+    image: mongo:7.0
+    container_name: mongodb-login
+    restart: unless-stopped
+    ports:
+      - '27018:27017'
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: login_db
+    volumes:
+      - mongo_login_data:/data/db
+
+  register-service:
+    build:
+      context: ./register-service
+      dockerfile: Dockerfile
+    container_name: register-service
+    restart: unless-stopped
+    ports:
+      - '3001:3001'
+    environment:
+      - MONGODB_URI=mongodb://admin:password123@mongodb-register:27017/register_db?authSource=admin
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET=super-secret-jwt-key
+      - PORT=3001
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongodb-register:
+        condition: service_started
+
+  login-service:
+    build:
+      context: ./login-service
+      dockerfile: Dockerfile
+    container_name: login-service
+    restart: unless-stopped
+    ports:
+      - '3002:3002'
+    environment:
+      - MONGODB_URI=mongodb://admin:password123@mongodb-login:27017/login_db?authSource=admin
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - JWT_SECRET=super-secret-jwt-key
+      - PORT=3002
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      mongodb-login:
+        condition: service_started
+
+volumes:
+  mongo_register_data:
+  mongo_login_data:
